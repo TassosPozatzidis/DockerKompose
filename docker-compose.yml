@@ -1,0 +1,62 @@
+version: "3.5"
+services:
+
+  server:
+    build:
+      context: .
+      dockerfile: docker/apache_php/server.dockerfile
+      args:
+        DOCKER_GROUP_ID: ${DOCKER_GROUP_ID}
+    container_name: laboratory_server
+    user: "${DOCKER_USER_ID}:${DOCKER_GROUP_ID}" # this is the Laravel user. We need to set it
+    # this way, so that the permissions are applied correctly.
+
+    ports:
+      - "89:80"
+    volumes:
+      - .:/var/www/html
+      - ~/.composer/auth.json:/root/.composer/auth.json
+    networks:
+      - docker_laboratory_net
+    depends_on:
+      - db
+
+  db:
+    build:
+      context: docker/db
+    container_name: laboratory_db
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE=${DB_DATABASE}
+      - MYSQL_USER=${DB_USERNAME}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_ALLOW_EMPTY_PASSWORD=true
+    ports:
+      - "3316:3306"
+    volumes:
+      - mydata:/var/lib/mysql
+    networks:
+      - docker_laboratory_net
+
+  npm:
+    build:
+      context: .
+      dockerfile: docker/utils/npm.dockerfile
+    container_name: laboratory_npm
+    working_dir: /var/www/html
+    entrypoint: ["npm"]
+    volumes:
+      - .:/var/www/html
+    networks:
+      - docker_laboratory_net
+    depends_on:
+      - server
+
+
+volumes:
+  mydata:
+
+networks:
+  docker_laboratory_net:
+    external: false
+    name: docker_laboratory_net
