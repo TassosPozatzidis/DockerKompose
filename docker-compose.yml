@@ -17,7 +17,7 @@ services:
       - .:/var/www/html
       - ~/.composer/auth.json:/root/.composer/auth.json
     networks:
-      - docker_laboratory_net
+      - docker-laboratory-net
     depends_on:
       - db
 
@@ -36,7 +36,7 @@ services:
     volumes:
       - mydata:/var/lib/mysql
     networks:
-      - docker_laboratory_net
+      - docker-laboratory-net
 
   npm:
     build:
@@ -48,7 +48,7 @@ services:
     volumes:
       - .:/var/www/html
     networks:
-      - docker_laboratory_net
+      - docker-laboratory-net
     depends_on:
       - server
 
@@ -57,6 +57,6 @@ volumes:
   mydata:
 
 networks:
-  docker_laboratory_net:
+  docker-laboratory-net:
     external: false
-    name: docker_laboratory_net
+    name: docker-laboratory-net
